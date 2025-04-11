@@ -9,21 +9,34 @@ import {
 } from './utils'
 
 export class Account {
-  public readonly bank: Bank
+  private _bank?: Bank
   public readonly id: number
   public readonly agency: number
   public readonly holder: string
   private transactions: Transaction[]
   protected balance: number
 
-  constructor(bank: Bank, agency: number, id: number, holder: string) {
-    this.bank = bank
+  constructor(agency: number, id: number, holder: string) {
+    this._bank = undefined
     this.agency = agency
     this.id = id
     this.holder = holder
     this.transactions = []
     this.balance = 0.0
+
   }
+  get bank(): Bank {
+    if (this._bank === undefined) 
+      throw new Error("ofphan account. bank not defined")
+    return this._bank
+  }
+  set bank(bank: Bank){
+    this._bank = bank
+  }
+
+  // create(agency: number, id: number, holder: string): Account{
+  //   return(agency, id, holder)
+  // }
 
   private checkValue(value: number): void {
     if (value < 0) throw new Error('Invalid value')

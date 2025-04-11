@@ -13,22 +13,11 @@ export class Bank {
     this.accounts = []
   }
 
-  createAccount(
-    agency: number,
-    id: number,
-    accountHolder: string,
-    limit?: number
-  ): Account {
-    let account: Account
-
-    if (limit === undefined) {
-      account = new Account(this, agency, id, accountHolder)
-    } else {
-      account = new SpecialAccount(this, agency, id, accountHolder, limit)
-    }
+  addAccount(account: Account) {
+    account.bank = this
     this.accounts.push(account)
-    return account
   }
+
 
   getAccount(agency: number, id: number): Account | undefined {
     for (const account of this.accounts) {

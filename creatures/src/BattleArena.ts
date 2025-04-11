@@ -1,6 +1,4 @@
-import { Dragon } from './dragon'
-import { Elf } from './elf'
-import { Troll } from './troll'
+
 import { Creature } from './creature'
 
 export class BattleArena {

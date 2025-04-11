@@ -6,13 +6,12 @@ export class SpecialAccount extends Account {
   public readonly limit: number
 
   constructor(
-    bank: Bank,
     agency: number,
     id: number,
     holder: string,
     limit: number
   ) {
-    super(bank, agency, id, holder)
+    super(agency, id, holder)
     this.limit = limit
   }
 
