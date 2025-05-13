@@ -8,13 +8,28 @@ import {
   formatTime,
 } from './utils'
 
+export enum AccountType {
+  regular,
+  special,
+}
+
+export type AccountModel = {
+  type: AccountType
+  agency: number
+  id: number
+  holder: string
+  balance: number
+  transactions: Transaction[]
+  limit?: number
+}
+
 export class Account {
   private _bank?: Bank
   public readonly id: number
   public readonly agency: number
   public readonly holder: string
-  private transactions: Transaction[]
   protected balance: number
+  private transactions: Transaction[]
 
   constructor(agency: number, id: number, holder: string) {
     this._bank = undefined
@@ -23,20 +38,17 @@ export class Account {
     this.holder = holder
     this.transactions = []
     this.balance = 0.0
-
   }
+
   get bank(): Bank {
-    if (this._bank === undefined) 
-      throw new Error("ofphan account. bank not defined")
+    if (this._bank === undefined)
+      throw new Error('Ofphan account. Bank not defined.')
     return this._bank
   }
-  set bank(bank: Bank){
+
+  set bank(bank: Bank) {
     this._bank = bank
   }
-
-  // create(agency: number, id: number, holder: string): Account{
-  //   return(agency, id, holder)
-  // }
 
   private checkValue(value: number): void {
     if (value < 0) throw new Error('Invalid value')
@@ -46,13 +58,35 @@ export class Account {
     if (value > this.balance) throw new Error('Insufficient funds')
   }
 
+  static fromJSON(model: AccountModel): Account {
+    const account = new Account(model.agency, model.id, model.holder)
+    for (const trans of model.transactions) {
+      account.addTransaction(Transaction.fromJSON(trans))
+    }
+    return account
+  }
+
+  toJSON(): AccountModel {
+    return {
+      type: AccountType.regular,
+      agency: this.agency,
+      id: this.id,
+      holder: this.holder,
+      balance: this.balance,
+      transactions: this.transactions,
+    }
+  }
+
+  protected addTransaction(transaction: Transaction): void {
+    this.transactions.push(transaction)
+    this.balance += transaction.signedValue()
+  }
+
   deposit(value: number): void {
     this.checkValue(value)
 
     const trans = new Transaction(new Date(), TransactionType.deposit, value)
-    this.transactions.push(trans)
-
-    this.balance += value
+    this.addTransaction(trans)
   }
 
   withdraw(value: number): void {
@@ -60,9 +94,7 @@ export class Account {
     this.checkBalance(value)
 
     const trans = new Transaction(new Date(), TransactionType.widthdraw, value)
-    this.transactions.push(trans)
-
-    this.balance -= value
+    this.addTransaction(trans)
   }
 
   transfer(value: number, toAccount: Account) {
@@ -70,12 +102,10 @@ export class Account {
     this.checkBalance(value)
 
     const debit = new Transaction(new Date(), TransactionType.debit, value)
-    this.transactions.push(debit)
-    this.balance -= value
+    this.addTransaction(debit)
 
     const credit = new Transaction(new Date(), TransactionType.credit, value)
-    toAccount.transactions.push(credit)
-    toAccount.balance += value
+    this.addTransaction(credit)
   }
 
   protected showHeader(): void {
@@ -97,7 +127,7 @@ export class Account {
   protected showFooter(): void {
     const suffix = this.balance >= 0 ? 'C' : 'D'
     const balance = formatCurrency(this.balance, false, suffix)
-    console.log(alignText(`SALDO\t${balance}`, ['>27', '>12']))
+    console.log(alignText(`SALDO\t${balance}\n`, ['>27', '>13']))
   }
 
   showBalance(): void {

@@ -1,28 +1,41 @@
-import { Account } from './account'
 import { Bank } from './bank'
-import { SpecialAccount } from './special-account'
+import { random, randomChoice, randomRange } from './utils'
 
-console.log('** BEGIN **')
+const bank = Bank.load()
 
-const bank = new Bank(999, 'BANCO EXEMPLO S/A')
+// const bank = new Bank(999, 'BANCO EXEMPLO S/A')
 
-const a1 = new Account(987, 12345, 'FULANO DE CASTRO')
-const a2 = new Account(123, 98765, 'BELTRANO DA SILVA')
-const s3 = new SpecialAccount(123, 98765, 'BELTRANO DA SILVA', 1000.0)
+// bank.addAccount(new Account(987, 12345, 'FULANO DE CASTRO'))
+// bank.addAccount(new Account(123, 98765, 'BELTRANO DA SILVA'))
+// bank.addAccount(new SpecialAccount(123, 76340, 'CICRANO DE OLIVEIRA', 1000.0))
 
-bank.addAccount(a1)
-bank.addAccount(a2)
-bank.addAccount(s3)
 bank.showAccounts()
 
-a1.deposit(1500.0)
-a1.withdraw(500.0)
-a1.transfer(300.0, s3)
+for (const account of bank.accounts) {
+  let value: number
 
-a1.showStatement()
-s3.showStatement()
+  value = randomRange(1000, 2000)
+  account.deposit(value)
 
+  const n = randomRange(3, 6)
+  for (let k = 0; k < n; k++) {
+    value = randomRange(100, 500)
+    switch (random(3)) {
+      case 0:
+        account.deposit(value)
+        break
+      case 1:
+        account.withdraw(value)
+        break
+      default:
+        const otherAccount = randomChoice(bank.accounts)
+        if (account !== otherAccount) {
+          account.transfer(value, otherAccount)
+        }
+    }
+  }
 
-// ac1.showBalance()
+  account.showStatement()
+}
 
-// console.log('** END **')
+bank.save()

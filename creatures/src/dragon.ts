@@ -2,15 +2,9 @@ import { Creature } from './creature'
 
 export class Dragon extends Creature {
   constructor(name: string) {
-    let health = 300
-    let attackPower = 100
-    super(name, health, attackPower)
-    this.name = name
-    this.health = health
-    this.attackPower = attackPower
+    super(name, 300, 50)
   }
-
   move(): string {
-    return `${this.name} soars through the skies.`
+    return `draco moves: ${this.name} soars through the skies`
   }
 }
